@@ -12,7 +12,7 @@ import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from pathlib import Path
 
 import nltk
 from nltk.corpus import stopwords
@@ -35,28 +35,33 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 
 
+
 #Notícias Verdadeiras Drive PET
 X = []
-y = []
+
+
+pasta_relativa = 'dataset/true'  # Caminho relativo da pasta
+
+diretorio_atual = os.getcwd()  # Obtém o diretório de trabalho atual
+pasta_absoluta = os.path.join(diretorio_atual, pasta_relativa)  # Combina com o caminho relativo
 
 N = 3600 # Número de notícias coletadas do banco de "notícias genuínas"
 
-i = 0
+for nome_arquivo in os.listdir(pasta_absoluta):
+    if nome_arquivo.endswith('.txt'):
+        # Caminho completo para o arquivo
+        caminho_arquivo = os.path.join(pasta_absoluta, nome_arquivo)
+        try:
+            # Lê o conteúdo do arquivo e adiciona à lista de linhas
+            with open(caminho_arquivo, 'r',  encoding='utf-8') as arquivo:
+                conteudo = arquivo.read()
+                X.append(conteudo)
+        except:
+            print('Erro na leitura ou ausência do arquivo: ', nome_arquivo)
 
-while i < N:
-    j = i + 1 
-    try:
-        file = open("/dataset/true/"+str(j)+".txt")
-        # Os arquivos contidos na pasta apresentam como identidade um número mais a extensão .txt
-        X.append(file.readlines())
-        y.append(True)
-        file.close()
-    except:
-        print('Erro na leitura ou ausência do arquivo: ', j)
-        # Sequencialmente, cada arquivos será checado, um a um
-        X.append([None])
-        y.append([None])
-    i += 1
+
+y  = [True]*len(X)
+
 
 news = pd.DataFrame(data = list(zip(X, y)), columns = ['Conteúdo', 'Veredicto'])
 news.index = np.arange(len(news))     
@@ -64,26 +69,29 @@ print('Validação completa')
 
 #Notícias Verdadeiras Drive Leonardo
 X = []
-y = []
 
-N = 3600 # Número de notícias coletadas do banco de "notícias genuínas"
 
-i = 0
+pasta_relativa = 'dataset/fake'  # Caminho relativo da pasta
 
-while i < N:
-    j = i + 1 
-    try:
-        file = open("/dataset/true/"+str(j)+".txt")
-        # Os arquivos contidos na pasta apresentam como identidade um número mais a extensão .txt
-        X.append(file.readlines())
-        y.append(True)
-        file.close()
-    except:
-        print('Erro na leitura ou ausência do arquivo: ', j)
-        # Sequencialmente, cada arquivos será checado, um a um
-        X.append([None])
-        y.append([None])
-    i += 1
+
+diretorio_atual = os.getcwd()  # Obtém o diretório de trabalho atual
+pasta_absoluta = os.path.join(diretorio_atual, pasta_relativa)  # Combina com o caminho relativo
+
+for nome_arquivo in os.listdir(pasta_absoluta):
+    if nome_arquivo.endswith('.txt'):
+        # Caminho completo para o arquivo
+        caminho_arquivo = os.path.join(pasta_absoluta, nome_arquivo)
+        try:
+            # Lê o conteúdo do arquivo e adiciona à lista de linhas
+            with open(caminho_arquivo, 'r',  encoding='utf-8') as arquivo:
+                conteudo = arquivo.read()
+                X.append(conteudo)
+        except:
+            print('Erro na leitura ou ausência do arquivo: ', nome_arquivo)
+
+
+y  = [False]*len(X)
+
 
 news = pd.DataFrame(data = list(zip(X, y)), columns = ['Conteúdo', 'Veredicto'])
 news.index = np.arange(len(news))     
@@ -91,7 +99,7 @@ print('Validação completa')
 
 #Tratando os Dados
 #Subsituição de caracteres invalidos das noticias verdadeiras 
-news_np = pd.DataFrame.to_numpy(news['Conteúdo'])
+news_np = news['Conteúdo'].tolist()  # Converter a coluna 'Conteúdo' em uma lista
 lista = []
 for i in range(len(news_np)):
   lista.append(news_np[i])
